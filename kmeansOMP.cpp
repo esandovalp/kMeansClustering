@@ -11,6 +11,12 @@
 #include <string>
 #include <vector>
 
+struct Result {
+  int threads;
+  int points;
+  double time;
+};
+
 struct Point {
   double x, y; // Assuming 2D points for simplicity
 };
@@ -138,15 +144,19 @@ void writeCSV(const std::string &filename, const std::vector<Point> &points,
 }
 
 int main() {
-  std::srand(std::time(0)); // Initialize random seed once
+  std::srand(std::time(0));        // Initialize random seed once
+  int K = 5;                       // Number of clusters
+  std::vector<Result> all_results; // Vector to store all results
 
-  int K = 5; // Number of clusters
-  std::vector<int> threadCounts = {
-      1, omp_get_num_procs() / 2, omp_get_num_procs(), omp_get_num_procs() * 2};
+  // Define filenames of the datasets to test
   std::vector<std::string> filenames = {"100000_data.csv", "200000_data.csv",
                                         "300000_data.csv", "400000_data.csv",
                                         "600000_data.csv", "800000_data.csv",
                                         "1000000_data.csv"};
+
+  // Define thread counts to test
+  std::vector<int> threadCounts = {1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
+                                   12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22};
 
   for (const auto &filename : filenames) {
     std::vector<Point> points = readCSV(filename);
@@ -156,8 +166,7 @@ int main() {
                 // is empty
     }
 
-    std::vector<int> labels(points.size(),
-                            -1); // Initialize labels outside the loop
+    std::vector<int> labels(points.size(), -1); // Initialize labels
 
     for (int threads : threadCounts) {
       omp_set_num_threads(threads);
@@ -165,28 +174,35 @@ int main() {
 
       for (int i = 0; i < 10; ++i) {
         auto start = std::chrono::high_resolution_clock::now();
-
         kMeansClustering(points, K, labels);
-
         auto stop = std::chrono::high_resolution_clock::now();
-
-        auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-        times.push_back(duration.count());
+        times.push_back(
+            std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)
+                .count());
       }
 
       double averageTime =
           std::accumulate(times.begin(), times.end(), 0.0) / times.size();
-      std::cout << "Average time with " << threads << " threads for "
-                << points.size() << " points in " << filename << ": "
-                << averageTime << " milliseconds.\n";
-    }
 
-    // Optionally, write the output CSV for the last dataset/thread combination
-    std::string outputFilename =
-        std::to_string(points.size()) + "_clusters.csv";
-    writeCSV(outputFilename, points, labels);
+      // Store the result
+      all_results.push_back(
+          {threads, static_cast<int>(points.size()), averageTime});
+
+      // Output the result to the console
+      std::cout << "Average time with " << threads << " threads for "
+                << points.size() << " points: " << averageTime
+                << " milliseconds.\n";
+    }
   }
+
+  // After all results are collected, write them to a CSV file
+  std::ofstream result_file("kmeans_results.csv");
+  result_file << "Threads,Points,Time (ms)\n";
+  for (const auto &result : all_results) {
+    result_file << result.threads << "," << result.points << "," << result.time
+                << "\n";
+  }
+  result_file.close();
 
   return 0;
 }
