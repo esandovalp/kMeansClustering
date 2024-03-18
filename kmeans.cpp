@@ -97,44 +97,41 @@ int main() {
   std::srand(std::time(0)); // Initialize random seed once
 
   int K = 5; // Number of clusters
+  // Define filenames or sizes of datasets you want to test
+  std::vector<std::string> filenames = {"100000_data.csv", "200000_data.csv",
+                                        "300000_data.csv", "400000_data.csv",
+                                        "600000_data.csv", "800000_data.csv",
+                                        "1000000_data.csv"};
 
-  // Filename of the input CSV containing the points
-  std::string filename = "100000_data.csv"; // Adjust this line if your
-                                            // file has a different name
-
-  std::vector<Point> points = readCSV(filename);
-  if (points.empty()) {
-    std::cerr << "Error: No points read from file.\n";
-    return 1; // Exit if the file can't be opened or is empty
-  }
-
-  int numPoints = points.size(); // Determine the number of points dynamically
-  std::string outputFilename = std::to_string(numPoints) + "_clusters.csv";
-  std::vector<double> times; // Store times for each iteration
-
-  std::vector<int> labels(points.size(), -1); // Initialize labels
-
-  for (int i = 0; i < 10; ++i) {
-    auto start = std::chrono::high_resolution_clock::now();
-
-    kMeansClustering(points, K, labels);
-
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    times.push_back(duration.count());
-
-    // Optionally, write the output CSV only on the last iteration
-    if (i == 9) {
-      writeCSV(outputFilename, points, labels);
+  for (const auto &filename : filenames) {
+    std::vector<Point> points = readCSV(filename);
+    if (points.empty()) {
+      std::cerr << "Error: No points read from file " << filename << ".\n";
+      continue; // Skip to the next file if the current one can't be opened or
+                // is empty
     }
-  }
 
-  double averageTime =
-      std::accumulate(times.begin(), times.end(), 0.0) / times.size();
-  std::cout << "Average time for " << numPoints << " points: " << averageTime
-            << " milliseconds.\n";
+    int numPoints = points.size(); // Determine the number of points dynamically
+    std::vector<double> times;     // Store times for each iteration
+    std::vector<int> labels(points.size(), -1); // Initialize labels
+
+    for (int i = 0; i < 10; ++i) {
+      auto start = std::chrono::high_resolution_clock::now();
+
+      kMeansClustering(points, K, labels);
+
+      auto stop = std::chrono::high_resolution_clock::now();
+
+      auto duration =
+          std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+      times.push_back(duration.count());
+    }
+
+    double averageTime =
+        std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+    std::cout << "Average time for " << numPoints << " points in " << filename
+              << ": " << averageTime << " milliseconds.\n";
+  }
 
   return 0;
 }

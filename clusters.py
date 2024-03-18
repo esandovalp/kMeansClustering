@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Path to the CSV file
-csv_file = "100000_clusters.csv"
+csv_file = "1000000_clusters.csv"
 
 # Reading the CSV file
 points_df = pd.read_csv(csv_file, header=None, names=["x", "y", "cluster"])

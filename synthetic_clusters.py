@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Indicate the number of points
-n_points = 100000
+n_points = 1000000
 # randomly generating data points and noise
 points, y_true = make_blobs(n_samples=n_points,
                             centers=10,
