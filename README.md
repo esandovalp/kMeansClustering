@@ -10,7 +10,7 @@ Este experimento evalúa el rendimiento del algoritmo de clustering K-Means en l
 
 ### Documentación del equipo experimental:
 
-- Hardware: Los experimentos se realizaron en un MacBook Pro M3 equipado con 18 GB de RAM. Esta moderna configuración de hardware proporciona un contexto relevante para evaluar el rendimiento de las tareas de computación paralela.
+- Hardware: Los experimentos se realizaron en un MacBook Pro M3 Pro equipado con 18 GB de RAM. Esta moderna configuración de hardware proporciona un contexto relevante para evaluar el rendimiento de las tareas de computación paralela.
 - Software: La compilación y ejecución del algoritmo K-Means se gestionó utilizando Zed (un entorno de desarrollo similar a Visual Studio Code) y GCC versión 13 con soporte OpenMP habilitado mediante la bandera `fopenmp`. Esta configuración de software permite aprovechar al máximo las capacidades paralelas de OpenMP.
 
 ### Interpretación y análisis de los resultados:
